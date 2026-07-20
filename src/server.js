@@ -1,10 +1,16 @@
-import http from "node:http"
+import http from "node:http";
+import { json } from './middlewares/json.js';
+import { Database } from "./database.js";
 
-const server = http.createServer((req, res) => {
+const database = new Database();
+
+const server = http.createServer(async (req, res) => {
     const { method, url } = req;
 
-    if(method === 'GET' & url === '/users') {
-        return res.end('Hello World!');
+    await json(req, res);
+
+    if(method === 'GET' & url === '/') {
+        return res.end(JSON.stringify({message: 'API de tasks rodando com JSON'}));
     }
 
     return res.writeHead(404).end();
