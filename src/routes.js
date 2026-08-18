@@ -78,5 +78,46 @@ export const routes = [
             return res.writeHead(204).end();
         } 
     },
+
+    {
+        method: "DELETE",
+        path: buildRoutePath('/tasks/:id'),
+        handler: (req, res) => {
+            const { id } = req.params;
+
+            const taskExistsAndWasDeleted = database.delete('tasks', id);
+
+            if (!taskExistsAndWasDeleted) {
+                return res.writeHead(404).end(
+                    JSON.stringify({ message: "Task not found."})
+                )
+            }
+
+            return res.writeHead(204).end();
+        }
+    },
+
+    {
+        method: "PATCH",
+        path: buildRoutePath('/tasks/:id/complete'),
+        handler: (req, res) => {
+            const { id } = req.params;
+
+            const [task] = database.select('tasks').filter(row => row.id === id);
+
+            if (!task) {
+                return res.writeHead(404).end(
+                    JSON.stringify({ message: "Task not found."})
+                )
+            }
+
+            const isTaskCompleted = !!task.completed_at;
+            const completed_at = isTaskCompleted ? null : new Date().toISOString();
+
+            database.update('tasks', id, { completed_at });
+
+            return res.writeHead(204).end();
+        }
+    }
 ];
 
